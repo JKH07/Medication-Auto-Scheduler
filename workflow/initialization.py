@@ -16,7 +16,7 @@ def get_supabase_client() -> Client:
 
 #fetch medication from database
 def fetch(jwt,user_id):
-    
+    response={}
     supabase_client = create_client(
         os.getenv("SUPABASE_URL"),
         os.getenv("SUPABASE_KEY")
@@ -24,13 +24,14 @@ def fetch(jwt,user_id):
     supabase_client.postgrest.headers.update({"Authorization": f"Bearer {jwt}"})
     
     try:
-        response = supabase_client.table("users_medication")\
-            .select("*")\
+        #get medication list from database
+        med_ids = supabase_client.table("users_medication")\
+            .select("medication_id")\
             .eq("user_id", user_id)\
             .execute()
         
         print("Success!")
-        print(f"Retrieved data")
+        print(f"Retrieved data:{med_ids}")
         return response
     except PostgrestAPIError as e:
         print(f"API Error: {e}")
@@ -62,28 +63,8 @@ def send(jwt, data):
         return None
 
 def fetch_conflicts(med_id):
-    supabase_client = create_client(
-        os.getenv("SUPABASE_URL"),
-        os.getenv("SUPABASE_KEY")
-    )
-    supabase_client.postgrest.headers.update({"Authorization": f"Bearer {jwt}"})
-    
-    try:
-        response = supabase_client.table("users_medication")\
-            .select("*")\
-            .eq("med_A", med_id)\
-            .execute()
-        
-        print("Success!")
-        print(f"Retrieved data")
-        return response
-    except PostgrestAPIError as e:
-        print(f"API Error: {e}")
-        print(f"Status code: {e.code if hasattr(e, 'code') else 'N/A'}")
-        return None
-    except Exception as e:
-        print(f"Error: {e}")
-        return None
+    #api check
+    return
 
 #dont forget to make sure that not the same info is inputted twice
 #A-B and B-A for ex
