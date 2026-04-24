@@ -14,9 +14,6 @@ def fetch_data(jwt,user_id):
 #update format to suit google or tools
 def formalize():
     return
-#set and check rules
-def set_rules():
-    return
 #start cearting the schedule
 #schedule will be processed day by day
 def create_schedule():

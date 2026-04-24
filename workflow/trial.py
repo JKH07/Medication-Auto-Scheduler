@@ -9,7 +9,7 @@ supabase = get_supabase_client()
 
 try: 
     data = supabase.auth.sign_in_with_password({
-        "email": "test@mail.com", 
+        "email": "test2@mail.com", 
         "password": "123"
     })
     print("Auth successful!")
