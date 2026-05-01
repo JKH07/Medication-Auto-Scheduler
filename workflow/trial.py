@@ -2,7 +2,7 @@ from supabase import create_client, Client, PostgrestAPIError
 import os
 from dotenv import load_dotenv
 from initialization import send,fetch,get_supabase_client
-
+from save_to_data_base import update_medication_schedule
 load_dotenv()
 
 supabase = get_supabase_client()
@@ -20,10 +20,11 @@ except Exception as e:
 jwt = data.session.access_token
 user_id = supabase.auth.get_user().user.id
 
-# data={
-#     "user_id":user_id,
-#     "medication_id":"afdd7099-c475-458e-8629-84862be9af4f"
-# }
-# #result1=send(jwt,data)
+schedule= {'Morning': ['Aspirin', 'Metoprolol(1)', 'Furosemide(1)', 'Isosorbide(1)'], 
+           'Night': ['Metoprolol(2)', 'Lisinopril'], 
+           'Evening': ['Atorvastatin', 'Clopidogrel', 'Isosorbide(2)', 'Warfarin', 'Digoxin', 'Spironolactone', 'Potassium_Sup'], 
+           'Afternoon': ['Furosemide(2)', 'Amlodipine']}
 
 result = fetch(jwt,user_id)
+
+result2=update_medication_schedule(schedule,"Monday",jwt)

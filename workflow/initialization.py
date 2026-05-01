@@ -41,26 +41,7 @@ def fetch(jwt,user_id):
         print(f"Error: {e}")
         return None
 
-def send(jwt, data):
-    
-    supabase_client = create_client(
-        os.getenv("SUPABASE_URL"),
-        os.getenv("SUPABASE_KEY")
-    )
-    supabase_client.postgrest.headers.update({"Authorization": f"Bearer {jwt}"})
-    
-    try:
-        response = supabase_client.table("users_medication").insert(data).execute()
-        print("Success!")
-        print(f"Inserted data: {response.data}")
-        return response
-    except PostgrestAPIError as e:
-        print(f"API Error: {e}")
-        print(f"Status code: {e.code if hasattr(e, 'code') else 'N/A'}")
-        return None
-    except Exception as e:
-        print(f"Error: {e}")
-        return None
+
 
 def fetch_conflicts(med_id):
     #api check
