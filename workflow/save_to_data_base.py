@@ -20,9 +20,9 @@ def update_medication_schedule(medication_dict: dict, day: str, jwt: str):
             try:
                 response = (
                     supabase_client.table("users_medication")
-                    .update({"time_of_day": time_of_day})
-                    .eq("medication_id", med_id) 
-                    .eq("day", day) 
+                    .update({"time_of_day": time_of_day})\
+                    .eq("medication_id", med_id)\
+                    .eq("day", day)\
                     .execute()
                 )
                 print(f"Updated {med_id} to {time_of_day} for {day}.")

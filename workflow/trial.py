@@ -1,15 +1,17 @@
 from supabase import create_client, Client, PostgrestAPIError
 import os
 from dotenv import load_dotenv
-from initialization import send,fetch,get_supabase_client
+
 from save_to_data_base import update_medication_schedule
+from initialization import fetch_conflicts,get_supabase_client,fetch_med_details
+
 load_dotenv()
 
 supabase = get_supabase_client()
 
 try: 
     data = supabase.auth.sign_in_with_password({
-        "email": "test2@mail.com", 
+        "email": "test2@gmail.com", 
         "password": "123"
     })
     print("Auth successful!")
@@ -25,6 +27,12 @@ schedule= {'Morning': ['Aspirin', 'Metoprolol(1)', 'Furosemide(1)', 'Isosorbide(
            'Evening': ['Atorvastatin', 'Clopidogrel', 'Isosorbide(2)', 'Warfarin', 'Digoxin', 'Spironolactone', 'Potassium_Sup'], 
            'Afternoon': ['Furosemide(2)', 'Amlodipine']}
 
-result = fetch(jwt,user_id)
+#result = fetch(jwt,user_id)
 
-result2=update_medication_schedule(schedule,"Monday",jwt)
+#result2=update_medication_schedule(schedule,"Monday",jwt)
+
+meds={"DDInter1","DDInter1348"}
+
+#res=fetch_conflicts(meds,jwt)
+res=fetch_med_details(meds,jwt)
+print(res)

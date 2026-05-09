@@ -3,15 +3,15 @@ from ortools.sat.python import cp_model
 
 BRACKETS = ["Morning", "Noon", "Afternoon", "Evening", "Night", "AfterMidnight"]
 NUM_BRACKETS = len(BRACKETS)
-DAYTIME_CUTOFF = 3   # brackets 0-3 are daytime (up to and including 6PM-10PM)
-SAME_MED_LAG = 2     # minimum bracket gap between doses of the same medication
+DAYTIME_CUTOFF = 3   
+SAME_MED_LAG = 2     
 
 
 def solve_med_schedule(med_requirements: dict, drug_conflicts: dict) -> dict | None:
    
     model = cp_model.CpModel()
 
-    # -- Decision variables ---------------------------------------------------
+    #variables
     all_doses: dict = {}
     for med_name, num_doses in med_requirements.items():
         for d in range(num_doses):
@@ -19,16 +19,16 @@ def solve_med_schedule(med_requirements: dict, drug_conflicts: dict) -> dict | N
                 0, NUM_BRACKETS - 1, f"{med_name}_d{d}"
             )
 
-    # -- Constraints ----------------------------------------------------------
+    # constraints
 
-    # 1. Same-medication spacing: doses of the same drug must be spread out
+    # Same-medication spacing
     for med_name, num_doses in med_requirements.items():
         for d in range(num_doses - 1):
             model.Add(
                 all_doses[(med_name, d + 1)] >= all_doses[(med_name, d)] + SAME_MED_LAG
             )
 
-    # 2. Drug-drug conflict spacing (hard constraint - gap must be met or infeasible)
+    # Drug-drug conflict spacing
     for (m1, m2), lag in drug_conflicts.items():
         if lag == 0:
             continue  # zero-lag adds no constraint
@@ -40,8 +40,8 @@ def solve_med_schedule(med_requirements: dict, drug_conflicts: dict) -> dict | N
                 model.AddAbsEquality(diff, all_doses[(m1, d1)] - all_doses[(m2, d2)])
                 model.Add(diff >= lag)
 
-    # -- Objective ------------------------------------------------------------
-    # Maximise daytime doses - all conflict gaps are hard constraints.
+    #Objective
+    # Maximise daytime doses
     is_daytime_vars: list = []
     for idx, dose_var in enumerate(all_doses.values()):
         is_daytime = model.NewBoolVar(f"is_daytime_{idx}")
@@ -51,11 +51,11 @@ def solve_med_schedule(med_requirements: dict, drug_conflicts: dict) -> dict | N
 
     model.Maximize(sum(is_daytime_vars))
 
-    # -- Solve ----------------------------------------------------------------
+    # solver
     solver = cp_model.CpSolver()
     status = solver.Solve(model)
 
-    # -- Output ---------------------------------------------------------------
+    # output
     if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         schedule: dict = {}
         for (med_name, dose_idx), var in all_doses.items():
@@ -78,7 +78,7 @@ def solve_med_schedule(med_requirements: dict, drug_conflicts: dict) -> dict | N
         return None
 
 
-# -- Example run --------------------------------------------------------------
+#run
 if __name__ == "__main__":
     med_requirements = {
         "Aspirin":        1,
