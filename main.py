@@ -1,5 +1,5 @@
+from workflow.workflow import pipeline
 
-
-def main(user_id):
-    
-    return
+def main(jwt,day):
+    pipeline(day,jwt)
+    return 

@@ -1,43 +1,56 @@
-from initialization import fetch,get_supabase_client
 from schedule2 import solve_med_schedule
 from save_to_data_base import update_medication_schedule
+from initialization import fetch_conflicts, get_supabase_client, fetch_med_details, fetch_med_list, fetch_active_ingredients
 
-def workflow(day,jwt):
-    data=fetch_data(jwt,day)
-    formalized=formalize(data)
-    meds=formalized['meds']
-    conflicts=formalized['conflicts']
-    schedule=create_schedule(meds,conflicts)
-    set_timings(schedule,day,jwt)
-    return 
-
-
-#fetching data based on user id
-def fetch_data(jwt,user_id):
+def fetch(jwt, user_id) -> dict:
     try:
-        response=fetch(jwt,user_id)
-        return response
+        medication_list = fetch_med_list("Monday", jwt)
+        medication_details = fetch_med_details(jwt, medication_list)
+        active_ingredients = fetch_active_ingredients(medication_list)
+        conflicts = fetch_conflicts(active_ingredients)
+        return {
+            "medication_details": medication_details,
+            "conflicts": conflicts
+        }
     except Exception as err:
-        print(err)
+        print(f"fetch() failed: {err}")
+        raise
 
-#update format to suit google or tools
-def formalize(data)->dict:
-    formalized={
-        'meds':[],
-        'conflicts':[]
-    }
-    return formalized
-#start cearting the schedule
-#schedule will be processed day by day
-def create_schedule(meds,conflicts)-> dict | None:
-    schedule=solve_med_schedule(meds,conflicts)
-    return schedule
+def formalize_meds(medication) -> dict:
+    meds = {}
+    for med in medication:
+        meds[med['medication_id']] = int(med['total_dosage'] / med['dosage_per_time'])
+    return meds
 
-#edit database medication timings
-def set_timings(data:dict,day:str,jwt):
+def formalize_conflicts(conflicts) -> dict:
+    cons = {}
+    for con in conflicts:
+        cons[(con['medA'], con['medB'])]=2
+    return cons
+
+def create_schedule(meds, conflicts) -> dict | None:
     try:
-        update_medication_schedule(data,day,jwt)
-    except e:
+        schedule = solve_med_schedule(meds, conflicts)
+        print("Success")
+        return schedule
+    except Exception as e:
         print(e)
-    return None
-#end: frontend will get these timings from the database and display the schedule
+        return None
+
+def set_timings(data: dict, day: str, jwt):
+    try:
+        update_medication_schedule(data, day, jwt)
+    except Exception as e:
+        print(e)
+
+def pipeline(day, jwt):
+    res = fetch(jwt, day)
+    formalized_meds = formalize_meds(res['medication_details'])
+    formalized_conflicts = {}
+    if res['conflicts']:
+        formalized_conflicts = formalize_conflicts(res['conflicts'])
+    print(formalized_meds)
+    print(formalized_conflicts)
+    schedule = create_schedule(formalized_meds, formalized_conflicts)
+    print(schedule)
+    update_medication_schedule(schedule,day,jwt)

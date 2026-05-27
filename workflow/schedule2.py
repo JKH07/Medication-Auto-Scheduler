@@ -4,7 +4,7 @@ from ortools.sat.python import cp_model
 BRACKETS = ["Morning", "Noon", "Afternoon", "Evening", "Night", "AfterMidnight"]
 NUM_BRACKETS = len(BRACKETS)
 DAYTIME_CUTOFF = 3   
-SAME_MED_LAG = 2     
+SAME_MED_LAG = 1   
 
 
 def solve_med_schedule(med_requirements: dict, drug_conflicts: dict) -> dict | None:
@@ -57,16 +57,15 @@ def solve_med_schedule(med_requirements: dict, drug_conflicts: dict) -> dict | N
 
     # output
     if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
-        schedule: dict = {}
+        schedule = {}
         for (med_name, dose_idx), var in all_doses.items():
             bracket_name = BRACKETS[solver.Value(var)]
             label = (
-                f"{med_name}({dose_idx + 1})"
+                f"{med_name}_{dose_idx + 1}"
                 if med_requirements[med_name] > 1
                 else med_name
             )
-            schedule.setdefault(bracket_name, []).append(label)
-            
+            schedule[label] = bracket_name
         return schedule
     else:
         print("MODEL FAILED TO FIND A SOLUTION")
@@ -78,29 +77,3 @@ def solve_med_schedule(med_requirements: dict, drug_conflicts: dict) -> dict | N
         return None
 
 
-#run
-if __name__ == "__main__":
-    med_requirements = {
-        "Aspirin":        1,
-        "Metoprolol":     2,
-        "Lisinopril":     1,
-        "Atorvastatin":   1,
-        "Furosemide":     2,
-        "Clopidogrel":    1,
-        "Amlodipine":     1,
-        "Isosorbide":     2,
-        "Warfarin":       1,
-        "Digoxin":        1,
-        "Spironolactone": 1,
-        "Potassium_Sup":  1,
-    }
-
-    drug_conflicts = {
-        ("Metoprolol",  "Amlodipine"):    2,
-        ("Furosemide",  "Lisinopril"):    2,
-        ("Warfarin",    "Aspirin"):       3,
-      
-    }
-
-    result = solve_med_schedule(med_requirements, drug_conflicts)
-    print(result)

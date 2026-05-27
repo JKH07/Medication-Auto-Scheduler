@@ -16,24 +16,28 @@ def get_supabase_client() -> Client:
 
 
 #fetch medication from database
-def fetch_med_list(jwt:str,day:str):
-    
+def fetch_med_details(jwt: str, med_list):
     supabase_client = create_client(
         os.getenv("SUPABASE_URL"),
         os.getenv("SUPABASE_KEY")
     )
     supabase_client.postgrest.headers.update({"Authorization": f"Bearer {jwt}"})
-    
+
     try:
-        #get medication list from database
-        med_ids = supabase_client.table("users_medication")\
-            .select("medication_id,dosage")\
-            .eq("day",day)\
+        med_ids = [
+            med['medication_id'] if isinstance(med, dict) else med
+            for med in med_list
+        ]
+
+        med_details = supabase_client.table("users_medication")\
+            .select("medication_id,total_dosage,dosage_per_time")\
+            .in_("medication_id", med_ids)\
             .execute()
-        
+
         print("Success!")
-        print(f"Retrieved data:{med_ids}")
-        return med_ids
+        print(f"Retrieved data: {med_details.data}")
+        return med_details.data
+
     except PostgrestAPIError as e:
         print(f"API Error: {e}")
         print(f"Status code: {e.code if hasattr(e, 'code') else 'N/A'}")
@@ -42,25 +46,24 @@ def fetch_med_list(jwt:str,day:str):
         print(f"Error: {e}")
         return None
 
-def fetch_med_details(med_ids:dict,jwt:str):
-    #using the medication table get the active ingredients 
-    meds=med_ids[0]['id']
+
+def fetch_med_list(day: str, jwt: str):
     supabase_client = create_client(
         os.getenv("SUPABASE_URL"),
         os.getenv("SUPABASE_KEY")
     )
     supabase_client.postgrest.headers.update({"Authorization": f"Bearer {jwt}"})
-    
+
     try:
-        #get
-        active = supabase_client.table("medication")\
-            .select("active_ingredient,id")\
-            .eq("id",meds)\
+        meds = supabase_client.table("Schedule")\
+            .select("medication_id")\
+            .eq("day", day)\
             .execute()
-        
+
         print("Success!")
-        print(f"Retrieved data:{med_ids}")
-        return active
+        print(f"Retrieved data: {meds.data}")
+        return meds.data
+
     except PostgrestAPIError as e:
         print(f"API Error: {e}")
         print(f"Status code: {e.code if hasattr(e, 'code') else 'N/A'}")
@@ -68,18 +71,14 @@ def fetch_med_details(med_ids:dict,jwt:str):
     except Exception as e:
         print(f"Error: {e}")
         return None
-    
-
-    return
 
 
-def fetch_conflicts(active: list, jwt: str):
+def fetch_conflicts(active: list):
     supabase_client = create_client(
         os.getenv("SUPABASE_URL"),
         os.getenv("SUPABASE_KEY")
     )
-    supabase_client.postgrest.headers.update({"Authorization": f"Bearer {jwt}"})
-
+   
     try:
         results = []
 
@@ -109,3 +108,31 @@ def fetch_conflicts(active: list, jwt: str):
         return None
 
 
+def fetch_active_ingredients( med_list):
+    supabase_client = create_client(
+        os.getenv("SUPABASE_URL"),
+        os.getenv("SUPABASE_KEY")
+    )
+    
+    try:
+        med_ids = [
+            med['medication_id'] if isinstance(med, dict) else med
+            for med in med_list
+        ]
+
+        active_ingredients = supabase_client.table("medication_active")\
+            .select("active_ingredient,med_id")\
+            .in_("med_id", med_ids)\
+            .execute()
+
+        print("Success!")
+        print(f"Retrieved data: {active_ingredients.data}")
+        return active_ingredients.data
+
+    except PostgrestAPIError as e:
+        print(f"API Error: {e}")
+        print(f"Status code: {e.code if hasattr(e, 'code') else 'N/A'}")
+        return None
+    except Exception as e:
+        print(f"Error: {e}")
+        return None

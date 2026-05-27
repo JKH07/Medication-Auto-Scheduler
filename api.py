@@ -16,7 +16,7 @@ async def receive_text(
     token = authorization.split(" ")[1]
     
     try:
-        result = main(day, token)
+        result = main( token,day)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
