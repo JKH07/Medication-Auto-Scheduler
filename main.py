@@ -1,5 +1,5 @@
 from workflow.workflow import pipeline
 
 def main(jwt,day):
-    pipeline(day,jwt)
-    return 
+    return pipeline(day,jwt)
+    

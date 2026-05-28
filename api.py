@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Header, Body
 import os
 import uvicorn
 from main import main
+from workflow.save_to_data_base import update_medication_schedule
 
 app = FastAPI()
 
@@ -17,6 +18,7 @@ async def receive_text(
     
     try:
         result = main( token,day)
+        update_medication_schedule(result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

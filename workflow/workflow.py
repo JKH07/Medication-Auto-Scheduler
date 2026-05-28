@@ -1,6 +1,6 @@
-from schedule2 import solve_med_schedule
-from save_to_data_base import update_medication_schedule
-from initialization import fetch_conflicts, get_supabase_client, fetch_med_details, fetch_med_list, fetch_active_ingredients
+from workflow.schedule2 import solve_med_schedule
+
+from workflow.initialization import fetch_conflicts, get_supabase_client, fetch_med_details, fetch_med_list, fetch_active_ingredients
 
 def fetch(jwt, user_id) -> dict:
     try:
@@ -37,11 +37,7 @@ def create_schedule(meds, conflicts) -> dict | None:
         print(e)
         return None
 
-def set_timings(data: dict, day: str, jwt):
-    try:
-        update_medication_schedule(data, day, jwt)
-    except Exception as e:
-        print(e)
+
 
 def pipeline(day, jwt):
     res = fetch(jwt, day)
@@ -53,4 +49,4 @@ def pipeline(day, jwt):
     print(formalized_conflicts)
     schedule = create_schedule(formalized_meds, formalized_conflicts)
     print(schedule)
-    update_medication_schedule(schedule,day,jwt)
+    return schedule
