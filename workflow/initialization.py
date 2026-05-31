@@ -59,6 +59,7 @@ def fetch_med_list(day: str, jwt: str):
             .select("medication_id")\
             .eq("day", day)\
             .eq("status","pending")\
+            .eq("time_of_the_day","none")\
             .execute()
 
         print("Success!")
