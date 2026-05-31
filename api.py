@@ -25,7 +25,7 @@ async def receive_text(
     
     try:
         result = main( token,day)
-        update_medication_schedule(result)
+        update_medication_schedule(result,day,token)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
