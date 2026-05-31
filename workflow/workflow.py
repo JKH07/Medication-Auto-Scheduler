@@ -2,9 +2,9 @@ from workflow.schedule2 import solve_med_schedule
 
 from workflow.initialization import fetch_conflicts, get_supabase_client, fetch_med_details, fetch_med_list, fetch_active_ingredients
 
-def fetch(jwt, user_id) -> dict:
+def fetch(day,jwt) -> dict:
     try:
-        medication_list = fetch_med_list("Monday", jwt)
+        medication_list = fetch_med_list(day, jwt)
         medication_details = fetch_med_details(jwt, medication_list)
         active_ingredients = fetch_active_ingredients(medication_list)
         conflicts = fetch_conflicts(active_ingredients)
@@ -40,7 +40,7 @@ def create_schedule(meds, conflicts) -> dict | None:
 
 
 def pipeline(day, jwt):
-    res = fetch(jwt, day)
+    res = fetch(day,jwt)
     formalized_meds = formalize_meds(res['medication_details'])
     formalized_conflicts = {}
     if res['conflicts']:
