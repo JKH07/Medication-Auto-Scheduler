@@ -3,9 +3,16 @@ import os
 import uvicorn
 from main import main
 from workflow.save_to_data_base import update_medication_schedule
-
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows your local Flutter web app to talk to the server
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows POST, GET, etc.
+    allow_headers=["*"],  # Allows all headers
+)
 @app.post("/process-text")
 async def receive_text(
     day: str = Body(..., media_type="text/plain"), 
