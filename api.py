@@ -24,9 +24,13 @@ async def receive_text(
     token = authorization.split(" ")[1]
     
     try:
-        result = main( token,day)
-        update_medication_schedule(result,day,token)
+        result = main(token, day)
+        print(f"main() returned: {result}")        
+        print(f"result type: {type(result)}")      
+        update_medication_schedule(result, day, token)
     except Exception as e:
+        import traceback
+        traceback.print_exc()                      
         raise HTTPException(status_code=500, detail=str(e))
 
     return {

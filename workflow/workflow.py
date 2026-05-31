@@ -1,6 +1,6 @@
-from schedule2 import solve_med_schedule
+from workflow.schedule2 import solve_med_schedule
 
-from initialization import fetch_conflicts, get_supabase_client, fetch_med_details, fetch_med_list, fetch_active_ingredients
+from workflow.initialization import fetch_conflicts, get_supabase_client, fetch_med_details, fetch_med_list, fetch_active_ingredients
 
 def fetch(jwt, user_id) -> dict:
     try:
