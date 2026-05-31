@@ -58,7 +58,6 @@ def fetch_med_list(day: str, jwt: str):
         meds = supabase_client.table("Schedule")\
             .select("medication_id")\
             .eq("day", day)\
-            .eq("status","pending")\
             .execute()
 
         print("Success!")
