@@ -42,6 +42,7 @@ def update_medication_schedule(schedule, day: str, jwt: str):
                     "medication_id": med_id,
                     "user_id": user_id,
                     "day": day,
+                    "status":"pending",
                     "time_of_the_day": time
                 }
                 for time in timings
